@@ -8,9 +8,10 @@
 //? we use the "_" in the repl to refer in the last getting output. // (1 + 1 = 2) ||| ( _ + 1 = 3)
 
 //* "fs" module :
-const fs = require("fs"); // The built-in Node. js "file system" module helps us store, access, and manage data on our operating system. Commonly used features of the fs module include fs. readFile to read data from a file, fs.
-const { exitCode } = require("process");
+const fs = require("fs"); // The built-in Node. js "file system" module helps us store, access, and manage data on our operating system. Commonly used features of the fs module include fs. readFile to read data from a file.
 
+//! Blocking, synchronous way :
+/* 
 //* Reading file :
 const textIn = fs.readFileSync("./txt/append.txt", "utf-8"); //? "fs.readFileSync()" Method is an inbuilt api of fs module which is used to read the file and return its content. it accepts 2 arguments are the "path" of the file and "encoding" type.
 console.log(textIn);
@@ -19,3 +20,28 @@ console.log(textIn);
 const textOut = `This is what we know about the avocado : ${textIn}\nCreated on ${Date.now()}`;
 fs.writeFileSync("./txt/Output.txt", textOut); //  fs. writeFileSync() creates a new file if the specified file does not exist.
 console.log("file written !");
+ */
+
+//! Non-Blocking, asynchronous way :
+//* example :
+/* 
+fs.readFile("./txt/start.txt", "utf-8", (error, data) => {
+  console.log(data);
+});
+console.log("Will read file !"); 
+*/
+//? Output : "Will read file !" then "Read-this" => So Node.js will start reading the file in the background, therefore will not block the code and will then immediately move on to the next line of code. Only then when the file is completely read then the callback function will run.
+
+//* Callback Hell :
+//? Node.js is built around the philosophy of calling callbacks as soon as finish the task to implement asynchronous operations.
+fs.readFile("./txt/start.txt", "utf-8", (error, data1) => {
+  fs.readFile(`./txt/${data1}.txt`, "utf-8", (error, data2) => {
+    fs.readFile(`./txt/append.txt`, "utf-8", (error, data3) => {
+      console.log(data3);
+      fs.writeFile("./txt/final.txt", `${data2}\n${data3}`, "utf-8", (err) => {
+        console.log("file has been written !!");
+      });
+    });
+  });
+});
+console.log("Will read file !");
