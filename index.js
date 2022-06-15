@@ -48,27 +48,69 @@ fs.readFile("./txt/start.txt", "utf-8", (error, data1) => {
 console.log("Will read file !");
 */
 
-//! Server & Routing & Building a simple API :
-//* Create web-server :
+//! Create Server & Routing & Building a simple API :
 const http = require("http"); // The http module is a core module of Node designed to support many features of the HTTP protocol. Second, create an HTTP server.
-
 const url = require("url");
 
+const replaceTemplate = (template, product) => {
+  let output = template.replace(/{%PRODUCTNAME%}/g, product.productName);
+  output = output.replace(/{%PRICE%}/g, product.price);
+  output = output.replace(/{%IMAGE%}/g, product.image);
+  output = output.replace(/{%FROM%}/g, product.from);
+  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
+  output = output.replace(/{%QUANTITY%}/g, product.quantity);
+  output = output.replace(/{%ID%}/g, product.id);
+  output = output.replace(/{%DESCRIPTION%}/g, product.decription);
+
+  if (!product.organic) output.replace(/{$NOT_ORGANIC}/g, "not-organic");
+  return output;
+};
+
+//* Templates :
+const tempOverview = fs.readFileSync(
+  `${__dirname}/templates/template-overview.html`,
+  "utf-8"
+);
+const tempCard = fs.readFileSync(
+  `${__dirname}/templates/template-card.html`,
+  "utf-8"
+);
+const tempProduct = fs.readFileSync(
+  `${__dirname}/templates/template-product.html`,
+  "utf-8"
+);
+
+//* Data :
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8"); // The "." refers to the directory from which we execute the node command in the terminal "__dirname" is always the directory in which the currently executing script resides
 const dataObj = JSON.parse(data);
 
 const server = http.createServer((req, res) => {
   const pathName = req.url;
 
+  //* The overview page :
   if (pathName === "/" || pathName === "/overview") {
-    res.end("the overview page !!");
+    res.writeHead(200, { "Content-type": "text/html" });
+
+    const cardsHtml = dataObj
+      .map((element) => replaceTemplate(tempCard, element))
+      .join(""); //? At this sentence we create an array full of filled templates which contains cards html after replacing all the dummy properties with the actual values extracted on the dataObj with the help of "replaceTemplate()", therefore at the end we convert this array into string so we can replace the "PRODUCTCARDS" with the final result of cardsHtml.
+    const output = tempOverview.replace(/{%PRODUCT_CARDS%}/g, cardsHtml);
+
+    res.end(output);
+
+    //* The product page :
   } else if (pathName === "/product") {
-    res.end("the product page !!");
+    res.writeHead(200, { "Content-type": "text/html" });
+    res.end(tempProduct);
+
+    //* The api  :
   } else if (pathName === "/api") {
     res.writeHead(200, {
       "Content-type": "application/json",
     });
     res.end(data);
+
+    //* Not found page :
   } else {
     res.writeHeader(404, {
       "content-type": "text/html",
