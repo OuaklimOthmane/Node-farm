@@ -46,14 +46,29 @@ fs.readFile("./txt/start.txt", "utf-8", (error, data1) => {
   });
 });
 console.log("Will read file !");
- */
+*/
 
-//! Server :
+//! Server & Routing :
 //* Create web-server :
 const http = require("http"); // The http module is a core module of Node designed to support many features of the HTTP protocol. Second, create an HTTP server
 
+const url = require("url");
+
 const server = http.createServer((req, res) => {
-  res.end("Hello from the Server !!");
+  const pathName = req.url;
+
+  if (pathName === "/" || pathName === "/overview") {
+    res.end("the overview page !!");
+  } else if (pathName === "/product") {
+    res.end("the product page !!");
+  } else {
+    res.writeHeader(404, {
+      "content-type": "text/html",
+      "my-own-header": "Hello World",
+    }); // The "res.writeHead(errorCode,headers)" method is for returning a status code to the browser, and the browser will throw an error if it is a client-side status code or server-side status code
+
+    res.end("<h1>Page not found !</h1>");
+  }
 });
 
 //* Listen to the coming requests :
