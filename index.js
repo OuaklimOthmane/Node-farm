@@ -48,11 +48,14 @@ fs.readFile("./txt/start.txt", "utf-8", (error, data1) => {
 console.log("Will read file !");
 */
 
-//! Server & Routing :
+//! Server & Routing & Building a simple API :
 //* Create web-server :
-const http = require("http"); // The http module is a core module of Node designed to support many features of the HTTP protocol. Second, create an HTTP server
+const http = require("http"); // The http module is a core module of Node designed to support many features of the HTTP protocol. Second, create an HTTP server.
 
 const url = require("url");
+
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8"); // The "." refers to the directory from which we execute the node command in the terminal "__dirname" is always the directory in which the currently executing script resides
+const dataObj = JSON.parse(data);
 
 const server = http.createServer((req, res) => {
   const pathName = req.url;
@@ -61,6 +64,11 @@ const server = http.createServer((req, res) => {
     res.end("the overview page !!");
   } else if (pathName === "/product") {
     res.end("the product page !!");
+  } else if (pathName === "/api") {
+    res.writeHead(200, {
+      "Content-type": "application/json",
+    });
+    res.end(data);
   } else {
     res.writeHeader(404, {
       "content-type": "text/html",
