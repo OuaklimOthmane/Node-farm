@@ -34,6 +34,7 @@ console.log("Will read file !");
 
 //* Callback Hell :
 //? Node.js is built around the philosophy of calling callbacks as soon as finish the task to implement asynchronous operations.
+/* 
 fs.readFile("./txt/start.txt", "utf-8", (error, data1) => {
   fs.readFile(`./txt/${data1}.txt`, "utf-8", (error, data2) => {
     fs.readFile(`./txt/append.txt`, "utf-8", (error, data3) => {
@@ -45,3 +46,17 @@ fs.readFile("./txt/start.txt", "utf-8", (error, data1) => {
   });
 });
 console.log("Will read file !");
+ */
+
+//! Server :
+//* Create web-server :
+const http = require("http"); // The http module is a core module of Node designed to support many features of the HTTP protocol. Second, create an HTTP server
+
+const server = http.createServer((req, res) => {
+  res.end("Hello from the Server !!");
+});
+
+//* Listen to the coming requests :
+server.listen(8000, "127.0.0.1", () =>
+  console.log("Listening to requests on port 8000")
+); // "server.listen()" method creates a listener on the specified port or path, it takes as arguments the port, the path, and an optional argument which is a callback function executed when the server has opened.
