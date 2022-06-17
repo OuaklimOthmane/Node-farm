@@ -48,24 +48,10 @@ fs.readFile("./txt/start.txt", "utf-8", (error, data1) => {
 console.log("Will read file !");
 */
 
-//! Create Server & Routing & Building a simple API :
+//! Create Server & Routing & Building a simple API & Parsing variables from urls :
 const http = require("http"); // The http module is a core module of Node designed to support many features of the HTTP protocol. Second, create an HTTP server.
 const url = require("url");
-
-const replaceTemplate = (template, product) => {
-  let output = template.replace(/{%PRODUCTNAME%}/g, product.productName);
-  output = output.replace(/{%PRICE%}/g, product.price);
-  output = output.replace(/{%IMAGE%}/g, product.image);
-  output = output.replace(/{%FROM%}/g, product.from);
-  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
-  output = output.replace(/{%QUANTITY%}/g, product.quantity);
-  output = output.replace(/{%ID%}/g, product.id);
-  output = output.replace(/{%DESCRIPTION%}/g, product.decription);
-
-  if (!product.organic)
-    output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
-  return output;
-};
+const replaceTemplate = require("./modules/replaceTemplate");
 
 //* Templates :
 const tempOverview = fs.readFileSync(
@@ -96,7 +82,7 @@ const server = http.createServer((req, res) => {
 
     const cardsHtml = dataObj
       .map((element) => replaceTemplate(tempCard, element))
-      .join(""); //? At this sentence we create an array full of filled templates which contains cards html after replacing all the dummy properties with the actual values extracted on the dataObj with the help of "replaceTemplate()", therefore at the end we convert this array into string so we can replace the "PRODUCTCARDS" with the final result of cardsHtml.
+      .join(""); //? At this sentence we create an array full of fulfilled templates which contains html cards after replacing all the dummy properties with the actual values extracted on the "dataObj" with the help of "replaceTemplate()", therefore at the end we convert this array into string so we can replace the "PRODUCTCARDS" with the final result of cardsHtml.
     const output = tempOverview.replace(/{%PRODUCT_CARDS%}/g, cardsHtml);
 
     res.end(output);
@@ -104,7 +90,10 @@ const server = http.createServer((req, res) => {
     //* The product page :
   } else if (pathname === "/product") {
     res.writeHead(200, { "Content-type": "text/html" });
-    res.end(tempProduct);
+
+    const product = dataObj[query.id];
+    const output = replaceTemplate(tempProduct, product);
+    res.end(output);
 
     //* The api  :
   } else if (pathname === "/api") {
